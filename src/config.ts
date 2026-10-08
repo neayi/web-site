@@ -16,7 +16,7 @@ export const LINKS = {
 // Renseigner l'identifiant du site neayi.com créé dans Matomo ; laisser null désactive le suivi.
 export const MATOMO = {
   url: 'https://matomo.tripleperformance.fr/',
-  siteId: null as number | null,
+  siteId: 16 as number | null,
 };
 
 // Script de suivi HubSpot : pose le cookie hubspotutk que contact.php transmet au CRM.
