@@ -14,7 +14,18 @@ return [
     // GUID du formulaire HubSpot dédié à neayi.com (Marketing > Formulaires).
     'hubspot_form_guid' => '',
 
-    // Destinataire des notifications, et expéditeur (adresse du domaine, pour la délivrabilité).
-    'mail_to'   => '',
-    'mail_from' => 'neayi.com <noreply@neayi.com>',
+    // Destinataire(s) des notifications, séparés par des virgules.
+    'mail_to' => '',
+
+    // Expéditeur : une adresse validée comme expéditeur dans Brevo (Senders, Domains),
+    // idéalement sur le domaine neayi.com authentifié (SPF/DKIM) dans Brevo.
+    'mail_from'      => 'noreply@neayi.com',
+    'mail_from_name' => 'neayi.com',
+
+    // SMTP Brevo : Brevo > SMTP & API > onglet SMTP.
+    // Identifiant du type xxxx@smtp-brevo.com et clé SMTP (pas la clé API).
+    'smtp_host'     => 'smtp-relay.brevo.com',
+    'smtp_port'     => 587,
+    'smtp_user'     => '',
+    'smtp_password' => '',
 ];

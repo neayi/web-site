@@ -51,9 +51,9 @@ Le formulaire (`src/components/ContactForm.astro`) envoie les données à `publi
 
 - filtre le spam (champ piège, 5 envois maximum par IP toutes les 10 minutes) ;
 - crée ou met à jour le contact dans HubSpot via l'API Forms ;
-- envoie une notification par email.
+- envoie une notification par email via le SMTP de Brevo, avec [PHPMailer](https://github.com/PHPMailer/PHPMailer) 7.1.1, copié dans `public/lib/phpmailer/` et protégé de l'accès direct par `public/lib/.htaccess`.
 
-Sa configuration n'est pas dans le dépôt : copier `deploy/neayi-contact-config.example.php` sur le serveur sous le nom `neayi-contact-config.php`, **dans le dossier parent** du dossier publié, puis renseigner le GUID du formulaire HubSpot et les adresses email. PHP 8.1 minimum.
+Sa configuration n'est pas dans le dépôt : copier `deploy/neayi-contact-config.example.php` sur le serveur sous le nom `neayi-contact-config.php`, **dans le dossier parent** du dossier publié, puis renseigner le GUID du formulaire HubSpot, les adresses email et les identifiants SMTP Brevo. PHP 8.1 minimum.
 
 ## Déploiement
 

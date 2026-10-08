@@ -4,7 +4,7 @@
  *
  * 1. Valide les champs et filtre le spam (champ piège + limite de fréquence par IP).
  * 2. Envoie le contact à HubSpot (API Forms v3) avec le cookie hubspotutk.
- * 3. Envoie une notification par email à l'équipe.
+ * 3. Envoie une notification par email à l'équipe, par le SMTP de Brevo (PHPMailer, dans lib/).
  *
  * La configuration (identifiants HubSpot, adresses email) est lue dans un fichier
  * placé hors du dossier publié : voir deploy/neayi-contact-config.example.php.
@@ -141,11 +141,14 @@ if (!empty($config['hubspot_portal_id']) && !empty($config['hubspot_form_guid'])
     }
 }
 
-// --- Email -----------------------------------------------------------------
+// --- Email (SMTP Brevo, via PHPMailer) ---------------------------------------
+require __DIR__ . '/lib/phpmailer/Exception.php';
+require __DIR__ . '/lib/phpmailer/PHPMailer.php';
+require __DIR__ . '/lib/phpmailer/SMTP.php';
+
 $mailOk = false;
-if (!empty($config['mail_to'])) {
-    $clean = fn (string $s) => str_replace(["\r", "\n"], ' ', $s);
-    $name = $clean("{$data['firstname']} {$data['lastname']}");
+if (!empty($config['mail_to']) && !empty($config['smtp_host'])) {
+    $name = "{$data['firstname']} {$data['lastname']}";
     $body = "Nouveau message depuis neayi.com\n\n"
         . "Nom : $name\n"
         . "Email : {$data['email']}\n"
@@ -155,19 +158,33 @@ if (!empty($config['mail_to'])) {
         . "Page : $pageUri\n"
         . 'HubSpot : ' . ($hubspotOk ? 'enregistré' : 'ÉCHEC, à saisir à la main') . "\n\n"
         . $data['message'] . "\n";
-    $headers = [
-        'From: ' . $config['mail_from'],
-        'Reply-To: ' . $clean($data['email']),
-        'Content-Type: text/plain; charset=UTF-8',
-    ];
-    $mailOk = mail(
-        $config['mail_to'],
-        '=?UTF-8?B?' . base64_encode("[neayi.com] $subjectLabel · $name") . '?=',
-        $body,
-        implode("\r\n", $headers)
-    );
-    if (!$mailOk) {
-        error_log('contact.php: échec de mail()');
+
+    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = $config['smtp_host'];
+        $mail->Port = (int) ($config['smtp_port'] ?? 587);
+        $mail->SMTPSecure = $mail->Port === 465
+            ? PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+            : PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->SMTPAuth = true;
+        $mail->Username = $config['smtp_user'];
+        $mail->Password = $config['smtp_password'];
+        $mail->Timeout = 15;
+        $mail->CharSet = PHPMailer\PHPMailer\PHPMailer::CHARSET_UTF8;
+
+        $mail->setFrom($config['mail_from'], $config['mail_from_name'] ?? 'neayi.com');
+        foreach (array_filter(array_map('trim', explode(',', $config['mail_to']))) as $to) {
+            $mail->addAddress($to);
+        }
+        $mail->addReplyTo($data['email'], $name);
+        $mail->Subject = "[neayi.com] $subjectLabel · $name";
+        $mail->Body = $body;
+
+        $mail->send();
+        $mailOk = true;
+    } catch (PHPMailer\PHPMailer\Exception $e) {
+        error_log('contact.php: échec de l\'envoi SMTP : ' . $mail->ErrorInfo);
     }
 }
 
