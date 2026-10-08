@@ -4,7 +4,7 @@
  *
  * Copier ce fichier sur O2switch sous le nom « neayi-contact-config.php »,
  * dans le dossier PARENT du dossier où le site est publié
- * (ex. site dans ~/neayi.com/ → config dans ~/neayi-contact-config.php).
+ * (ex. site dans ~/neayi-astro/www/ → config dans ~/neayi-astro/neayi-contact-config.php).
  * Il n'est jamais publié par le déploiement et ne doit pas être commité une fois rempli.
  */
 

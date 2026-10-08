@@ -57,13 +57,25 @@ Sa configuration n'est pas dans le dépôt : copier `deploy/neayi-contact-config
 
 ## Déploiement
 
-Chaque push sur `main` lance `.github/workflows/deploy.yml` : build, puis envoi de `dist/` par FTPS vers O2switch. Secrets à créer dans GitHub (Settings > Secrets and variables > Actions) :
+Chaque push sur `main` lance `.github/workflows/deploy.yml` : build, puis envoi de `dist/` par FTPS vers O2switch. Tant que les secrets FTP ne sont pas renseignés, le build tourne mais l'envoi est ignoré.
 
-| Secret | Exemple |
+### Organisation sur O2switch
+
+```
+~/neayi-astro/                      ← racine du compte FTP dédié au déploiement
+├── neayi-contact-config.php        ← configuration de contact.php (hors du site publié)
+└── www/                            ← racine web du domaine neayi.com (contenu de dist/)
+```
+
+### Secrets GitHub
+
+Settings > Secrets and variables > Actions > New repository secret :
+
+| Secret | Valeur |
 |---|---|
-| `FTP_HOST` | `ftp.neayi.com` ou le serveur O2switch |
-| `FTP_USER` | compte FTP cPanel |
-| `FTP_PASSWORD` | mot de passe du compte |
-| `FTP_REMOTE_DIR` | dossier du site, ex. `/neayi.com/` |
+| `FTP_HOST` | nom du serveur O2switch (celui du certificat TLS, visible dans cPanel) |
+| `FTP_USER` | compte FTP dédié, ex. `deploy@neayi.com` |
+| `FTP_PASSWORD` | mot de passe de ce compte |
+| `FTP_REMOTE_DIR` | `/www/` |
 
-Le miroir supprime sur le serveur les fichiers absents de `dist/`. Il doit donc viser un dossier réservé au nouveau site, jamais celui de l'actuel WordPress.
+Le miroir supprime sur le serveur les fichiers absents de `dist/`. Le workflow refuse donc un `FTP_REMOTE_DIR` vide ou égal à `/`, et le dossier visé ne doit jamais être celui de l'actuel WordPress.
