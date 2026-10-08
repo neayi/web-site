@@ -17,6 +17,9 @@ jobs:
       FTP_USER: ${{ secrets.FTP_USER }}
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
       FTP_REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
+      # Variable du dépôt (Settings > Secrets and variables > Actions > Variables) :
+      # « true » si le compte FTP a pour racine le dossier du site lui-même.
+      FTP_ACCOUNT_IS_SITE_ROOT: ${{ vars.FTP_ACCOUNT_IS_SITE_ROOT }}
     steps:
       - uses: actions/checkout@v7.0.1
 
@@ -34,10 +37,17 @@ jobs:
         # Ignorée tant que les secrets FTP ne sont pas configurés
         if: ${{ env.FTP_HOST != '' }}
         run: |
-          # Garde-fou : mirror --delete efface tout ce qui n'est pas dans dist/ ;
-          # il ne doit jamais viser la racine du compte FTP.
+          # Garde-fou : mirror --delete efface tout ce qui n'est pas dans dist/.
+          # La racine du compte FTP n'est acceptée que si le compte est limité au dossier du site.
           case "$FTP_REMOTE_DIR" in
-            ""|"/"|"."|"./") echo "FTP_REMOTE_DIR doit désigner le dossier du site (ex. /www/)"; exit 1 ;;
+            "")
+              echo "FTP_REMOTE_DIR est vide."; exit 1 ;;
+            "/"|"."|"./")
+              if [ "$FTP_ACCOUNT_IS_SITE_ROOT" != "true" ]; then
+                echo "FTP_REMOTE_DIR vise la racine du compte FTP. Si ce compte est limité au dossier du site,"
+                echo "créez la variable de dépôt FTP_ACCOUNT_IS_SITE_ROOT=true ; sinon indiquez le dossier du site (ex. /www/)."
+                exit 1
+              fi ;;
           esac
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
           lftp -c "

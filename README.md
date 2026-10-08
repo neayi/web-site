@@ -78,4 +78,6 @@ Settings > Secrets and variables > Actions > New repository secret :
 | `FTP_PASSWORD` | mot de passe de ce compte |
 | `FTP_REMOTE_DIR` | `/www/` |
 
-Le miroir supprime sur le serveur les fichiers absents de `dist/`. Le workflow refuse donc un `FTP_REMOTE_DIR` vide ou égal à `/`, et le dossier visé ne doit jamais être celui de l'actuel WordPress.
+Si le compte FTP a pour répertoire le dossier du site lui-même (`~/neayi-astro/www/`), mettre `FTP_REMOTE_DIR` à `/` et créer la **variable** de dépôt `FTP_ACCOUNT_IS_SITE_ROOT` = `true` (onglet Variables, pas Secrets).
+
+Le miroir supprime sur le serveur les fichiers absents de `dist/`. Le workflow refuse donc un `FTP_REMOTE_DIR` vide, ou égal à `/` sans cette variable, et le dossier visé ne doit jamais être celui de l'actuel WordPress.
