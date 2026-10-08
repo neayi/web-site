@@ -1,5 +1,5 @@
 ---
-title: Neayi
+title: Neayi · Making agroecological knowledge open to everyone
 description: Neayi runs Triple Performance, the open wiki for the agroecological transition, and builds Itinera, an AI-assisted tool to simulate cropping systems.
 hero:
   title: Making agroecological knowledge

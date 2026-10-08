@@ -1,5 +1,5 @@
 ---
-title: Neayi
+title: Neayi · Rendre les savoirs agroécologiques accessibles à tous
 description: Neayi opère Triple Performance, le wiki ouvert de la transition agroécologique, et conçoit Itinera, l'outil de simulation des itinéraires techniques assisté par IA.
 hero:
   title: Rendre les savoirs agroécologiques

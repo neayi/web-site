@@ -24,7 +24,13 @@ const children = (
 const formatDate = (d: Date) => d.toLocaleDateString(htmlLang[lang], { day: 'numeric', month: 'long', year: 'numeric' });
 ---
 
-<Base lang={lang} title={title} description={description} alternates={alternates}>
+<Base
+  lang={lang}
+  title={title}
+  description={description}
+  alternates={alternates}
+  article={date || author ? { published: date, author } : undefined}
+>
   <article class="wrap page">
     <header>
       {parentHref && <p class="eyebrow"><a href={parentHref}>← {parentTitle}</a></p>}
