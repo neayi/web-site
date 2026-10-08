@@ -1,0 +1,76 @@
+---
+import '@fontsource/comfortaa/700.css';
+import '@fontsource-variable/nunito-sans';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { HUBSPOT_PORTAL_ID, MATOMO } from '../config';
+import { htmlLang, type Locale } from '../i18n/ui';
+import ogDefault from '../assets/images/accueil-groupe-champs.jpg';
+
+interface Props {
+  lang: Locale;
+  title: string;
+  description: string;
+  /** URL de la même page dans chaque langue, pour le sélecteur et les balises hreflang. */
+  alternates: Partial<Record<Locale, string>>;
+  noindex?: boolean;
+}
+
+const { lang, title, description, alternates, noindex = false } = Astro.props;
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const fullTitle = title === 'Neayi' ? title : `${title} · Neayi`;
+const ogImage = new URL(ogDefault.src, site).href;
+---
+
+<!doctype html>
+<html lang={htmlLang[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {
+      Object.entries(alternates).map(
+        ([l, href]) => href && <link rel="alternate" hreflang={l} href={new URL(href, site).href} />,
+      )
+    }
+    {alternates.fr && <link rel="alternate" hreflang="x-default" href={new URL(alternates.fr, site).href} />}
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Neayi" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={htmlLang[lang].replace('-', '_')} />
+    {
+      MATOMO.siteId !== null && (
+        <script is:inline define:vars={{ url: MATOMO.url, siteId: MATOMO.siteId }}>
+          var _paq = (window._paq = window._paq || []);
+          _paq.push(['trackPageView']);
+          _paq.push(['enableLinkTracking']);
+          _paq.push(['setTrackerUrl', url + 'matomo.php']);
+          _paq.push(['setSiteId', String(siteId)]);
+          var g = document.createElement('script');
+          g.async = true;
+          g.src = url + 'matomo.js';
+          document.head.appendChild(g);
+        </script>
+      )
+    }
+    <script is:inline async defer id="hs-script-loader" src={`//js.hs-scripts.com/${HUBSPOT_PORTAL_ID}.js`}></script>
+  </head>
+  <body>
+    <Header lang={lang} alternates={alternates} />
+    <main id="contenu">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

@@ -1,0 +1,62 @@
+# neayi.com : site statique Astro sur O2switch (Apache)
+
+Options -Indexes
+DirectoryIndex index.html index.php
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # HTTPS et domaine sans www
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://neayi.com%{REQUEST_URI} [L,R=301]
+
+  # --- Anciennes URL WordPress -------------------------------------------
+  # Pages (FR)
+  RewriteRule ^a-propos-de-neayi/?$ /a-propos/ [L,R=301]
+  RewriteRule ^la-plateforme/?$ /triple-performance/ [L,R=301]
+  RewriteRule ^entretien-du-commun/?$ /triple-performance/ [L,R=301]
+  RewriteRule ^ecosysteme-triple-performance/?$ /triple-performance/ [L,R=301]
+  RewriteRule ^nos-services/?$ /accompagnement/ [L,R=301]
+  RewriteRule ^(on-parle-de-nous|emplois-et-stages|blog|300f0-web-agency-news)/?$ / [L,R=302]
+  # Articles du blog repris dans « À propos »
+  RewriteRule ^neayi-nos-convictions/?$ /a-propos/nos-convictions/ [L,R=301]
+  RewriteRule ^neayi-notre-proposition/?$ /a-propos/notre-proposition/ [L,R=301]
+  # Autres articles du blog : redirigés vers l'accueil (non repris)
+  RewriteRule ^(le-conseil-agricole-strategique-au-coeur-de-la-transition-agroecologique|lenvironnement-technique-de-neayi|les-4-piliers-de-la-diffusion-de-la-connaissance-agricole|les-reseaux-sociaux-des-agriculteurs-en-2020)/?$ / [L,R=302]
+
+  # Pages (EN, anciennes URL TranslatePress)
+  RewriteRule ^en/a-propos-de-neayi/?$ /en/about/ [L,R=301]
+  RewriteRule ^en/la-plateforme/?$ /en/triple-performance/ [L,R=301]
+  RewriteRule ^en/(entretien-du-commun|ecosysteme-triple-performance)/?$ /en/triple-performance/ [L,R=301]
+  RewriteRule ^en/nos-services/?$ /en/services/ [L,R=301]
+  RewriteRule ^en/neayi-nos-convictions/?$ /en/about/our-beliefs/ [L,R=301]
+  RewriteRule ^en/neayi-notre-proposition/?$ /en/about/our-proposal/ [L,R=301]
+  RewriteRule ^en/(on-parle-de-nous|emplois-et-stages|blog)/?$ /en/ [L,R=302]
+
+  # Plan du site : /sitemap.xml sert l'index généré par Astro ;
+  # les anciens plans du site WordPress y sont redirigés.
+  RewriteRule ^sitemap\.xml$ /sitemap-index.xml [L]
+  RewriteRule ^(wp-sitemap.*|sitemap_index)\.xml$ /sitemap-index.xml [L,R=301]
+
+  # Anciennes ressources WordPress
+  RewriteRule ^(wp-admin|wp-login\.php|xmlrpc\.php|wp-json|feed)(/.*)?$ - [G,L]
+
+  # URL sans slash final : ajoute le slash si le dossier existe
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^(.*[^/])$ /$1/ [L,R=301]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  # Fichiers générés par Astro : nom avec empreinte, donc mis en cache longtemps
+  <If "%{REQUEST_URI} =~ m#^/_astro/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml application/xml application/json
+</IfModule>

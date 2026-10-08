@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { SITE } from '../../config';
+import { alternatesFor } from '../../lib/urls';
+---
+
+<Base
+  lang="en"
+  title="Contact"
+  description="Partnerships, services, Itinera or press: write to the Neayi team."
+  alternates={await alternatesFor('contact')}
+>
+  <div class="wrap contact-page">
+    <header>
+      <h1>Let's talk</h1>
+      <p>A partnership around Triple Performance, a support project, a question about Itinera or a press request: this form goes straight to the team.</p>
+      <p class="address">Neayi · {SITE.address}</p>
+    </header>
+    <div class="card"><ContactForm lang="en" /></div>
+  </div>
+</Base>
+
+<style>
+  .contact-page {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 32px 48px;
+    padding-block: 48px 0;
+    align-items: start;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    margin: 0 0 14px;
+  }
+  header p {
+    color: var(--muted);
+    max-width: 44ch;
+  }
+  .address {
+    font-size: 0.95rem;
+  }
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: clamp(20px, 3vw, 30px);
+    min-width: 0;
+  }
+  @media (min-width: 900px) {
+    .contact-page {
+      grid-template-columns: 1fr 1.6fr;
+    }
+  }
+</style>

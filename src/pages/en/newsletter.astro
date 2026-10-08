@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { t } from '../../i18n/ui';
+import { alternatesFor } from '../../lib/urls';
+
+const lang = 'en';
+---
+
+<Base lang={lang} title={t(lang, 'newsletter.title')} description={t(lang, 'newsletter.description')} alternates={await alternatesFor('newsletter')}>
+  <div class="wrap newsletter-page">
+    <header>
+      <h1>{t(lang, 'newsletter.title')}</h1>
+      <p>{t(lang, 'newsletter.text')}</p>
+    </header>
+    <div class="card"><NewsletterForm lang={lang} /></div>
+  </div>
+</Base>
+
+<style>
+  .newsletter-page {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 32px 48px;
+    padding-block: 48px 0;
+    align-items: start;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    margin: 0 0 14px;
+  }
+  header p {
+    color: var(--muted);
+    max-width: 44ch;
+  }
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: clamp(20px, 3vw, 30px);
+    min-width: 0;
+  }
+</style>

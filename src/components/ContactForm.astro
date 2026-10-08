@@ -1,0 +1,191 @@
+---
+import { t, type Locale } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+  /** Préfixe des id, pour pouvoir placer deux formulaires dans une même page. */
+  id?: string;
+}
+
+const { lang, id = 'contact' } = Astro.props;
+const subjects = ['partnership', 'services', 'itinera', 'press', 'other'] as const;
+---
+
+<form class="contact-form" action="/contact.php" method="post" novalidate data-contact-form>
+  <input type="hidden" name="lang" value={lang} />
+  <div class="trap" aria-hidden="true">
+    <label for={`${id}-website`}>Website</label>
+    <input id={`${id}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <label for={`${id}-firstname`}>
+    {t(lang, 'form.firstname')}
+    <input id={`${id}-firstname`} name="firstname" autocomplete="given-name" required maxlength="100" />
+  </label>
+  <label for={`${id}-lastname`}>
+    {t(lang, 'form.lastname')}
+    <input id={`${id}-lastname`} name="lastname" autocomplete="family-name" required maxlength="100" />
+  </label>
+  <label for={`${id}-email`}>
+    {t(lang, 'form.email')}
+    <input id={`${id}-email`} name="email" type="email" autocomplete="email" required maxlength="200" />
+  </label>
+  <label for={`${id}-company`}>
+    <span>{t(lang, 'form.company')} <small>({t(lang, 'form.optional')})</small></span>
+    <input id={`${id}-company`} name="company" autocomplete="organization" maxlength="200" />
+  </label>
+  <label for={`${id}-subject`} class="full">
+    {t(lang, 'form.subject')}
+    <select id={`${id}-subject`} name="subject">
+      {subjects.map((s) => <option value={s}>{t(lang, `form.subject.${s}`)}</option>)}
+    </select>
+  </label>
+  <label for={`${id}-message`} class="full">
+    {t(lang, 'form.message')}
+    <textarea id={`${id}-message`} name="message" rows="5" required maxlength="5000"></textarea>
+  </label>
+
+  <div class="full actions">
+    <button class="btn btn-action" type="submit" data-label={t(lang, 'form.send')} data-sending={t(lang, 'form.sending')}>
+      {t(lang, 'form.send')}
+    </button>
+    <p class="status" role="status" aria-live="polite" hidden></p>
+  </div>
+  <template data-msg="success">{t(lang, 'form.success')}</template>
+  <template data-msg="error">{t(lang, 'form.error')}</template>
+  <template data-msg="invalid">{t(lang, 'form.invalid')}</template>
+</form>
+
+<script>
+  declare global {
+    interface Window {
+      _paq?: unknown[][];
+    }
+  }
+
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-contact-form]')) {
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const status = form.querySelector<HTMLParagraphElement>('.status')!;
+    const msg = (key: string) => form.querySelector<HTMLTemplateElement>(`template[data-msg="${key}"]`)!.innerHTML;
+
+    const show = (text: string, kind: 'ok' | 'error') => {
+      status.textContent = text;
+      status.dataset.kind = kind;
+      status.hidden = false;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.classList.add('validated');
+        show(msg('invalid'), 'error');
+        form.querySelector<HTMLElement>(':invalid')?.focus();
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = button.dataset.sending!;
+      const data = new FormData(form);
+      data.set('page', window.location.href);
+
+      try {
+        const response = await fetch(form.action, { method: 'POST', body: data });
+        const result = await response.json().catch(() => ({ ok: false }));
+        if (!response.ok || !result.ok) throw new Error(result.error ?? response.statusText);
+        form.reset();
+        form.classList.remove('validated');
+        show(msg('success'), 'ok');
+        window._paq?.push(['trackEvent', 'Contact', 'Envoi', String(data.get('subject'))]);
+      } catch {
+        show(msg('error'), 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = button.dataset.label!;
+      }
+    });
+  }
+</script>
+
+<style>
+  .contact-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  label {
+    display: grid;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 0;
+  }
+  label small {
+    font-weight: 400;
+  }
+  .full {
+    grid-column: 1 / -1;
+  }
+  input,
+  select,
+  textarea {
+    font: 1rem var(--font-body);
+    color: var(--ink);
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    width: 100%;
+    min-width: 0;
+  }
+  textarea {
+    resize: vertical;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid var(--neayi-blue);
+    outline-offset: 0;
+    border-color: var(--neayi-blue);
+  }
+  .validated :invalid {
+    border-color: #b3261e;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+  }
+  button {
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .status {
+    margin: 0;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .status[data-kind='ok'] {
+    color: var(--tp);
+  }
+  .status[data-kind='error'] {
+    color: #b3261e;
+  }
+  .trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  @media (max-width: 560px) {
+    .contact-form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

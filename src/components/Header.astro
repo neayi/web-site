@@ -1,0 +1,206 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logos/neayi.png';
+import { mainNav, t, type Locale } from '../i18n/ui';
+import { urlFor } from '../lib/urls';
+
+interface Props {
+  lang: Locale;
+  alternates: Partial<Record<Locale, string>>;
+}
+
+const { lang, alternates } = Astro.props;
+const current = Astro.url.pathname;
+const items = await Promise.all(
+  mainNav.map(async (key) => ({ key, href: await urlFor(key, lang), label: t(lang, `nav.${key}`) })),
+);
+const homeHref = (await urlFor('home', lang))!;
+const contactHref = (await urlFor('contact', lang))!;
+// Sans traduction de la page courante, le sélecteur renvoie vers l'accueil de l'autre langue.
+const langLinks = (['fr', 'en'] as const).map((l) => ({
+  l,
+  href: alternates[l] ?? (l === 'fr' ? '/' : '/en/'),
+  current: l === lang,
+}));
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="logo" href={homeHref} aria-label={t(lang, 'nav.home')}>
+      <Image src={logo} alt="Neayi" height={56} widths={[76, 152]} loading="eager" />
+    </a>
+
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="burger" aria-hidden="true"></span>{t(lang, 'nav.menu')}
+    </button>
+
+    <nav id="site-nav" class="nav" aria-label="Navigation principale">
+      <ul>
+        {
+          items
+            .filter((i) => i.href)
+            .map((i) => (
+              <li>
+                <a href={i.href} aria-current={current.startsWith(i.href!) ? 'page' : undefined}>
+                  {i.label}
+                </a>
+              </li>
+            ))
+        }
+      </ul>
+      <div class="nav-end">
+        <div class="lang" role="group" aria-label={t(lang, 'lang.label')}>
+          {
+            langLinks.map(({ l, href, current }) => (
+              <a href={href} hreflang={l} lang={l} aria-current={current ? 'true' : undefined}>
+                {l.toUpperCase()}
+              </a>
+            ))
+          }
+        </div>
+        <a class="btn btn-action" href={contactHref}>{t(lang, 'nav.contact')}</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.getElementById('site-nav');
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    nav?.classList.toggle('open', !open);
+  });
+</script>
+
+<style>
+  .site-header {
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 16px 28px;
+    padding-block: 10px;
+    flex-wrap: wrap;
+  }
+  .logo {
+    margin-right: auto;
+    display: block;
+    line-height: 0;
+  }
+  .logo img {
+    height: 56px;
+    width: auto;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 16px 28px;
+  }
+  .nav ul {
+    display: flex;
+    gap: 6px 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav ul a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.97rem;
+    padding-block: 4px;
+    border-bottom: 2px solid transparent;
+  }
+  .nav ul a:hover,
+  .nav ul a[aria-current='page'] {
+    border-bottom-color: var(--neayi-green);
+  }
+  .nav-end {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .lang {
+    display: inline-flex;
+    border: 1.5px solid var(--neayi-blue);
+    border-radius: 999px;
+    overflow: hidden;
+    font-weight: 800;
+    font-size: 0.78rem;
+  }
+  .lang a {
+    padding: 4px 10px;
+    color: var(--neayi-blue);
+    text-decoration: none;
+  }
+  .lang a[aria-current='true'] {
+    background: var(--neayi-blue);
+    color: #fff;
+  }
+  .menu-toggle {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font: 700 0.95rem var(--font-body);
+    color: var(--ink-strong);
+    background: none;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  .burger,
+  .burger::before,
+  .burger::after {
+    display: block;
+    width: 16px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    position: relative;
+  }
+  .burger::before,
+  .burger::after {
+    content: '';
+    position: absolute;
+  }
+  .burger::before {
+    top: -5px;
+  }
+  .burger::after {
+    top: 5px;
+  }
+
+  @media (max-width: 960px) {
+    .logo img {
+      height: 46px;
+    }
+    .menu-toggle {
+      display: inline-flex;
+    }
+    .nav {
+      display: none;
+      flex-basis: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      padding-block: 8px 12px;
+    }
+    .nav.open {
+      display: flex;
+    }
+    .nav ul {
+      flex-direction: column;
+    }
+    .nav ul a {
+      display: block;
+      padding-block: 8px;
+    }
+    .nav-end {
+      justify-content: space-between;
+    }
+  }
+</style>

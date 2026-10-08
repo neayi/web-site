@@ -1,0 +1,152 @@
+/* Direction B · Continuité : couleurs tirées du logo Neayi, orange pour les actions. */
+:root {
+  --neayi-blue: #0c5f92;
+  --neayi-green: #2d9f72;
+  --neayi-gradient: linear-gradient(110deg, var(--neayi-blue), var(--neayi-green));
+  --action: #fcaf3b;
+  --action-hover: #f39c1a;
+  --tp: #016242;
+  --tp-soft: #eef7f2;
+  --itinera: #2c5f2d;
+  --itinera-mid: #6b9571;
+  --itinera-soft: #f1f5ef;
+
+  --bg: #fffaf1;
+  --surface: #ffffff;
+  --ink: #25302c;
+  --ink-strong: #123c52;
+  --muted: #4c5853;
+  --line: #e4e1d8;
+
+  --font-title: 'Comfortaa', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Nunito Sans Variable', 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --radius-card: 22px;
+  --shadow-card: 0 1px 0 rgb(37 48 44 / 7%), 0 10px 26px -16px rgb(37 48 44 / 33%);
+  --wrap: 1180px;
+  --gutter: clamp(16px, 4vw, 32px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--font-body);
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--neayi-blue);
+}
+
+:focus-visible {
+  outline: 2px solid var(--neayi-blue);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--ink-strong);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.6em 1.3em;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: 2px solid transparent;
+  transition: background-color 0.15s, color 0.15s;
+}
+.btn-action {
+  background: var(--action);
+  color: var(--ink);
+}
+.btn-action:hover {
+  background: var(--action-hover);
+}
+.btn-dark {
+  background: var(--ink-strong);
+  color: var(--bg);
+}
+.btn-dark:hover {
+  background: var(--neayi-blue);
+}
+.btn-outline {
+  border-color: var(--ink-strong);
+  color: var(--ink-strong);
+}
+.btn-outline:hover {
+  background: var(--ink-strong);
+  color: var(--bg);
+}
+
+/* Texte des pages éditoriales (Markdown) */
+.prose {
+  max-width: 68ch;
+}
+.prose h2 {
+  font-size: 1.5rem;
+  margin: 2.2em 0 0.6em;
+}
+.prose h3 {
+  font-size: 1.15rem;
+  margin: 1.8em 0 0.4em;
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 1em;
+}
+.prose li {
+  margin-bottom: 0.4em;
+}
+.prose li::marker {
+  color: var(--neayi-green);
+}
+.prose strong {
+  color: var(--ink-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

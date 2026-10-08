@@ -1,0 +1,154 @@
+---
+import { HUBSPOT_PORTAL_ID, NEWSLETTER_FORM_GUID } from '../config';
+import { t, type Locale } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+// Envoi direct à l'API Forms de HubSpot : pas de secret en jeu, l'identifiant du formulaire est public.
+const endpoint = `https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${NEWSLETTER_FORM_GUID}`;
+---
+
+<form class="newsletter-form" action={endpoint} method="post" novalidate data-newsletter-form>
+  <label for="nl-firstname">
+    {t(lang, 'form.firstname')} <small>({t(lang, 'form.optional')})</small>
+    <input id="nl-firstname" name="firstname" autocomplete="given-name" maxlength="100" />
+  </label>
+  <label for="nl-lastname">
+    {t(lang, 'form.lastname')} <small>({t(lang, 'form.optional')})</small>
+    <input id="nl-lastname" name="lastname" autocomplete="family-name" maxlength="100" />
+  </label>
+  <label for="nl-email" class="full">
+    {t(lang, 'form.email')}
+    <input id="nl-email" name="email" type="email" autocomplete="email" required maxlength="200" />
+  </label>
+  <div class="full actions">
+    <button class="btn btn-action" type="submit">{t(lang, 'newsletter.submit')}</button>
+    <p class="status" role="status" aria-live="polite" hidden></p>
+  </div>
+  <template data-msg="success">{t(lang, 'newsletter.success')}</template>
+  <template data-msg="error">{t(lang, 'newsletter.error')}</template>
+  <template data-msg="invalid">{t(lang, 'form.invalid')}</template>
+</form>
+
+<script>
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-newsletter-form]')) {
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const status = form.querySelector<HTMLParagraphElement>('.status')!;
+    const msg = (key: string) => form.querySelector<HTMLTemplateElement>(`template[data-msg="${key}"]`)!.innerHTML;
+    const show = (text: string, kind: 'ok' | 'error') => {
+      status.textContent = text;
+      status.dataset.kind = kind;
+      status.hidden = false;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.classList.add('validated');
+        show(msg('invalid'), 'error');
+        form.querySelector<HTMLElement>(':invalid')?.focus();
+        return;
+      }
+
+      const data = new FormData(form);
+      const hutk = document.cookie.match(/(?:^|;\s*)hubspotutk=([a-f0-9]{32})/)?.[1];
+      const payload = {
+        fields: ['firstname', 'lastname', 'email']
+          .map((name) => ({ name, value: String(data.get(name) ?? '').trim() }))
+          .filter((f) => f.value !== ''),
+        context: { pageUri: window.location.href, pageName: document.title, ...(hutk ? { hutk } : {}) },
+      };
+
+      button.disabled = true;
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) throw new Error(response.statusText);
+        form.reset();
+        form.classList.remove('validated');
+        show(msg('success'), 'ok');
+        (window as { _paq?: unknown[][] })._paq?.push(['trackEvent', 'Newsletter', 'Inscription']);
+      } catch {
+        show(msg('error'), 'error');
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .newsletter-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  label {
+    display: grid;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 0;
+  }
+  label small {
+    font-weight: 400;
+  }
+  .full {
+    grid-column: 1 / -1;
+  }
+  input {
+    font: 1rem var(--font-body);
+    color: var(--ink);
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    width: 100%;
+    min-width: 0;
+  }
+  input:focus {
+    outline: 2px solid var(--neayi-blue);
+    outline-offset: 0;
+    border-color: var(--neayi-blue);
+  }
+  .validated :invalid {
+    border-color: #b3261e;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+  }
+  button {
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .status {
+    margin: 0;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .status[data-kind='ok'] {
+    color: var(--tp);
+  }
+  .status[data-kind='error'] {
+    color: #b3261e;
+  }
+  @media (max-width: 560px) {
+    .newsletter-form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

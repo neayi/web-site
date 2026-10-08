@@ -1,0 +1,17 @@
+---
+import { getCollection, render } from 'astro:content';
+import Page from '../layouts/Page.astro';
+import { alternatesFor, pageLang, pageSlug } from '../lib/urls';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages', (p) => pageLang(p) === 'fr');
+  return pages.map((entry) => ({ params: { slug: pageSlug(entry) }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Page entry={entry} lang="fr" alternates={await alternatesFor(entry.data.key)}>
+  <Content />
+</Page>

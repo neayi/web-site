@@ -1,0 +1,90 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logos/neayi.png';
+import { LINKS, SITE } from '../config';
+import { footerNav, t, type Locale } from '../i18n/ui';
+import { urlFor } from '../lib/urls';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const items = (
+  await Promise.all(footerNav.map(async (key) => ({ href: await urlFor(key, lang), label: t(lang, `nav.${key}`) })))
+).filter((i) => i.href);
+const newsletterHref = await urlFor('newsletter', lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap grid">
+    <div class="id">
+      <Image src={logo} alt="Neayi" height={64} widths={[86, 172]} />
+      <p>{SITE.address}</p>
+      <p><a href={LINKS.cofarming} rel="noopener">{t(lang, 'footer.cofarming')}</a></p>
+    </div>
+    <nav aria-label={t(lang, 'footer.site')}>
+      <h2>{t(lang, 'footer.site')}</h2>
+      <ul>{items.map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul>
+    </nav>
+    <div>
+      <h2>{t(lang, 'footer.products')}</h2>
+      <ul>
+        <li><a href={LINKS.tripleperformance[lang]}>Triple Performance</a></li>
+        <li><a href={LINKS.itinera}>Itinera{lang === 'en' && ' (in French)'}</a></li>
+      </ul>
+
+      <a class="btn btn-action nl" href={newsletterHref}>{t(lang, 'newsletter.link')}</a>
+    </div>
+  </div>
+  <div class="wrap copy">© Neayi {year}</div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 64px;
+    border-top: 1px solid var(--line);
+    padding-block: 40px 24px;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 28px;
+  }
+  .id img {
+    height: 64px;
+    width: auto;
+  }
+  .id p {
+    margin: 8px 0 0;
+  }
+  h2 {
+    font-size: 0.95rem;
+    margin: 0 0 10px;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  a {
+    color: var(--ink);
+  }
+  .nl-title {
+    margin-top: 22px;
+  }
+  .btn.nl {
+    color: var(--ink);
+    font-size: 0.88rem;
+    margin-top: 3rem;
+  }
+  .copy {
+    margin-top: 28px;
+    font-size: 0.82rem;
+  }
+</style>

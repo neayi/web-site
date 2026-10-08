@@ -1,0 +1,12 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Home from '../components/Home.astro';
+import { alternatesFor } from '../lib/urls';
+
+const entry = (await getEntry('home', 'fr'))!;
+---
+
+<Base lang="fr" title={entry.data.title} description={entry.data.description} alternates={await alternatesFor('home')}>
+  <Home lang="fr" entry={entry} />
+</Base>

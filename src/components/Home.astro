@@ -1,0 +1,305 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import ContactForm from './ContactForm.astro';
+import ItineraLogo from './ItineraLogo.astro';
+import heroImage from '../assets/images/accueil-groupe-champs.jpg';
+import tpLogo from '../assets/logos/triple-performance.svg';
+import type { Locale } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+  entry: CollectionEntry<'home'>;
+}
+
+const { lang, entry } = Astro.props;
+const { hero, tripleperformance: tp, itinera, services, contact } = entry.data;
+---
+
+<section class="hero wrap">
+  <div class="hero-text">
+    <h1>{hero.title} <em>{hero.highlight}</em></h1>
+    <p>{hero.text}</p>
+    <div class="btns">
+      <a class="btn btn-dark" href={hero.primary.href}>{hero.primary.label}</a>
+      <a class="btn btn-outline" href={hero.secondary.href}>{hero.secondary.label}</a>
+    </div>
+  </div>
+  <figure class="hero-photo">
+    <Image
+      src={heroImage}
+      alt={hero.imageAlt}
+      widths={[480, 720]}
+      sizes="(max-width: 760px) 100vw, 50vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </figure>
+</section>
+
+<section class="products wrap">
+  <article class="card tp">
+    <img class="tp-logo" src={tpLogo.src} alt="Triple Performance" width="180" height="44" />
+    <h2>{tp.title}</h2>
+    <p>{tp.text}</p>
+    <dl class="stats">
+      {
+        tp.stats.map((s) => (
+          <div>
+            <dt>{s.label}</dt>
+            <dd>{s.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <a class="more" href={tp.link.href}>{tp.link.label} →</a>
+  </article>
+
+  <article class="card it">
+    <ItineraLogo />
+    {itinera.badge && <span class="badge">{itinera.badge}</span>}
+    <h2>{itinera.title}</h2>
+    <ul class="features">
+      {
+        itinera.features.map((f) => (
+          <li>
+            <b>{f.tag}</b>
+            <span>{f.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <a class="more" href={itinera.link.href}>{itinera.link.label} →</a>
+  </article>
+</section>
+
+<section class="wrap">
+  <div class="services">
+    <div>
+      <h2>{services.title}</h2>
+      <p>{services.text}</p>
+      <a class="btn btn-action" href={services.link.href}>{services.link.label}</a>
+    </div>
+    <ul>{services.items.map((s) => <li>{s}</li>)}</ul>
+  </div>
+</section>
+
+<section class="wrap" id="contact">
+  <div class="contact card">
+    <div>
+      <h2>{contact.title}</h2>
+      <p>{contact.text}</p>
+    </div>
+    <ContactForm lang={lang} id="home-contact" />
+  </div>
+</section>
+
+<style>
+  section + section {
+    margin-top: 28px;
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 32px 48px;
+    align-items: center;
+    padding-block: 48px 40px;
+  }
+  .hero-text {
+    min-width: 0;
+  }
+  h1 {
+    font-size: clamp(2rem, 4.2vw, 3rem);
+    margin: 0;
+  }
+  h1 em {
+    font-style: normal;
+    background: var(--neayi-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-text p {
+    font-size: 1.12rem;
+    color: var(--muted);
+    max-width: 46ch;
+    margin: 18px 0 24px;
+  }
+  .btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .hero-photo {
+    margin: 0;
+    aspect-ratio: 4 / 3;
+    border-radius: 36px 36px 36px 8px;
+    overflow: hidden;
+    background: var(--tp-soft);
+  }
+  .hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% 50%;
+    display: block;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: clamp(20px, 3vw, 30px);
+    min-width: 0;
+  }
+  .products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 22px;
+  }
+  .products .card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .products h2 {
+    font-size: 1.3rem;
+    margin: 0;
+  }
+  .products p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .tp-logo {
+    height: 48px;
+    width: auto;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+    width: 100%;
+  }
+  .stats div {
+    background: var(--tp-soft);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .stats dt {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .stats dd {
+    margin: 0;
+    font: 700 1.55rem var(--font-title);
+    color: var(--tp);
+    font-variant-numeric: tabular-nums;
+  }
+  .badge {
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--action);
+    color: var(--ink);
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+    width: 100%;
+  }
+  .features li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: var(--itinera-soft);
+    border-radius: 14px;
+    padding: 11px 14px;
+    font-size: 0.97rem;
+  }
+  .features b {
+    flex: none;
+    font-size: 0.75rem;
+    background: var(--itinera);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 7px;
+    margin-top: 2px;
+  }
+  .more {
+    margin-top: auto;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .tp .more {
+    color: var(--tp);
+  }
+  .it .more {
+    color: var(--itinera);
+  }
+  .more:hover {
+    text-decoration: underline;
+  }
+
+  .services {
+    background: var(--neayi-gradient);
+    color: #fff;
+    border-radius: var(--radius-card);
+    padding: clamp(22px, 3.5vw, 36px);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 24px;
+    align-items: center;
+  }
+  .services h2 {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 0 0 8px;
+  }
+  .services p {
+    margin: 0 0 18px;
+    opacity: 0.94;
+  }
+  .services ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .services li {
+    background: rgb(255 255 255 / 16%);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.95rem;
+  }
+
+  .contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 28px;
+  }
+  .contact h2 {
+    font-size: 1.5rem;
+    margin: 0 0 8px;
+  }
+  .contact p {
+    margin: 0;
+    color: var(--muted);
+  }
+  @media (min-width: 900px) {
+    .contact {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+</style>
