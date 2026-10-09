@@ -4,7 +4,7 @@ description: Neayi opère Triple Performance, le wiki ouvert de la transition ag
 hero:
   title: Rendre les savoirs agroécologiques
   highlight: accessibles à tous
-  text: Neayi opère Triple Performance, le wiki agricole ouvert de référence, et conçoit Itinera, qui utilise l'IA pour simuler les itinéraires techniques avant de les mettre en culture.
+  text: Neayi opère Triple Performance, le wiki agricole ouvert de référence, et conçoit Itinera, qui utilise l'IA pour modéliser les itinéraires techniques afin de les comparer et de les analyser.
   primary: { label: Triple Performance, href: /triple-performance/ }
   secondary: { label: Itinera, href: /itinera/ }
   imageAlt: Un groupe d'agriculteurs visite une parcelle de couverts végétaux

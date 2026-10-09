@@ -4,7 +4,7 @@ description: Neayi runs Triple Performance, the open wiki for the agroecological
 hero:
   title: Making agroecological knowledge
   highlight: open to everyone
-  text: Neayi runs Triple Performance, the leading open farming wiki in France, and builds Itinera, which uses AI to simulate cropping systems before they reach the field.
+  text: Neayi runs Triple Performance, the leading open farming wiki in France, and builds Itinera, which uses AI to model cropping systems in order to compare them.
   primary: { label: Triple Performance, href: /en/triple-performance/ }
   secondary: { label: Itinera, href: /en/itinera/ }
   imageAlt: A group of farmers visiting a cover-crop field
